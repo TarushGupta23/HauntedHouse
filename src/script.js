@@ -16,6 +16,54 @@ const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
 
 /**
+ * TEXTURES
+ */
+const textureLoader = new THREE.TextureLoader()
+
+// FLOOR TEXTURES
+const floorAlphaTexture = textureLoader.load('floor/alpha.jpg')
+const floorColorTexture = textureLoader.load('./floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_diff_1k.jpg')
+const floorARMTexture = textureLoader.load('./floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_arm_1k.jpg')
+const floorNormalTexture = textureLoader.load('./floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_nor_gl_1k.jpg')
+const floorDisplacementTexture = textureLoader.load('./floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_disp_1k.jpg')
+
+floorColorTexture.repeat.set(8, 8)
+floorColorTexture.wrapS = THREE.RepeatWrapping
+floorColorTexture.wrapT = THREE.RepeatWrapping
+floorColorTexture.colorSpace = THREE.SRGBColorSpace
+
+floorARMTexture.repeat.set(8, 8)
+floorARMTexture.wrapS = THREE.RepeatWrapping
+floorARMTexture.wrapT = THREE.RepeatWrapping
+
+floorNormalTexture.repeat.set(8, 8)
+floorNormalTexture.wrapS = THREE.RepeatWrapping
+floorNormalTexture.wrapT = THREE.RepeatWrapping
+
+floorDisplacementTexture.repeat.set(8, 8)
+floorDisplacementTexture.wrapS = THREE.RepeatWrapping
+floorDisplacementTexture.wrapT = THREE.RepeatWrapping
+
+// WALL TEXTURES
+const wallColorTexture = textureLoader.load('walls/diffusion.jpg')
+const wallARMTexture = textureLoader.load('walls/arm.jpg')
+const wallNormalTexture = textureLoader.load('walls/normal.jpg')
+wallColorTexture.colorSpace = THREE.SRGBColorSpace
+
+// ROOF TEXTURES
+const roofColorTexture = textureLoader.load('roof/diffusion.jpg')
+const roofARMTexture = textureLoader.load('roof/arm.jpg')
+const roofNormalTexture = textureLoader.load('roof/normal.jpg')
+roofColorTexture.colorSpace = THREE.SRGBColorSpace
+
+roofColorTexture.repeat.set(3, 1)
+roofARMTexture.repeat.set(3, 1)
+roofNormalTexture.repeat.set(3, 1)
+
+roofColorTexture.wrapS = THREE.RepeatWrapping
+roofARMTexture.wrapS = THREE.RepeatWrapping
+roofNormalTexture.wrapS = THREE.RepeatWrapping
+/**
  * House
  */
 
@@ -28,8 +76,18 @@ const houseMeasurements = {
 
 // FLOOR
 const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(20, 20),
-    new THREE.MeshStandardMaterial({color: 'red'})
+    new THREE.PlaneGeometry(20, 20, 100, 100),
+    new THREE.MeshStandardMaterial({
+        alphaMap: floorAlphaTexture, transparent: true,
+        map: floorColorTexture,
+        metalnessMap: floorARMTexture,
+        aoMap: floorARMTexture,
+        roughnessMap: floorARMTexture,
+        normalMap: floorNormalTexture,
+        displacementMap: floorDisplacementTexture,
+        displacementScale: 0.3,
+        displacementBias: -.2
+    })
 )
 floor.rotation.x = - Math.PI / 2
 scene.add(floor)
@@ -41,12 +99,24 @@ house.position.y = (houseMeasurements.height) / 2
 
 const walls = new THREE.Mesh(
     new THREE.BoxGeometry(houseMeasurements.width, houseMeasurements.height, houseMeasurements.depth),
-    new THREE.MeshStandardMaterial({color: 'blue'})
+    new THREE.MeshStandardMaterial({
+        map: wallColorTexture,
+        aoMap: wallARMTexture,
+        roughnessMap: wallARMTexture,
+        normalMap: wallNormalTexture,
+        metalnessMap: wallARMTexture
+    })
 )
 
 const roof = new THREE.Mesh(
     new THREE.ConeGeometry(houseMeasurements.width/Math.SQRT2 + houseMeasurements.roofPadding, houseMeasurements.roofHeight, 4, 1, false),
-    new THREE.MeshStandardMaterial({color: 'green'})
+    new THREE.MeshStandardMaterial({
+        map: roofColorTexture,
+        aoMap: roofARMTexture,
+        roughnessMap: roofARMTexture,
+        normalMap: roofNormalTexture,
+        metalnessMap: roofARMTexture
+    })
 )
 roof.rotation.y = Math.PI / 4
 roof.position.y = (houseMeasurements.height + houseMeasurements.roofHeight)/2
